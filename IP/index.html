@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#173c2b">
+    <title>Forest Rescue — Level 1</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main id="game" aria-label="Forest Rescue adventure game">
+        <div id="world" aria-label="Forest game world">
+            <svg class="terrain" viewBox="0 0 2600 2000" preserveAspectRatio="none" aria-hidden="true">
+                <path class="river-bank" d="M-100 1780 C180 1590 220 1430 360 1270 S580 980 430 790 S240 510 480 310 S720 100 620 -80"/>
+                <path class="river" d="M-100 1780 C180 1590 220 1430 360 1270 S580 980 430 790 S240 510 480 310 S720 100 620 -80"/>
+                <path class="river-glint" d="M-100 1780 C180 1590 220 1430 360 1270 S580 980 430 790 S240 510 480 310 S720 100 620 -80"/>
+                <path class="trail-main" d="M1300 2050 C1260 1830 1370 1660 1290 1450 S1360 1200 1300 990 S1270 780 1300 560"/>
+                <path class="trail-glow" d="M1300 2050 C1260 1830 1370 1660 1290 1450 S1360 1200 1300 990 S1270 780 1300 560"/>
+                <path class="trail-worn" d="M1300 2050 C1260 1830 1370 1660 1290 1450 S1360 1200 1300 990 S1270 780 1300 560"/>
+                <path id="third-task-trail" class="trail-third is-hidden" d="M1300 80 C1260 160 1370 220 1300 310 S1250 440 1300 560"/>
+                <g id="choice-routes" class="choice-routes is-hidden">
+                    <path class="trail-branch" d="M1300 570 C1240 440 1050 400 900 300 S650 180 470 110"/>
+                    <path class="trail-branch" d="M1300 570 C1300 420 1300 270 1300 80"/>
+                    <path class="trail-branch" d="M1300 570 C1360 440 1550 400 1700 300 S1950 180 2130 110"/>
+                    <path class="trail-edge" d="M1300 570 C1240 440 1050 400 900 300 S650 180 470 110"/>
+                    <path class="trail-edge" d="M1300 570 C1300 420 1300 270 1300 80"/>
+                    <path class="trail-edge" d="M1300 570 C1360 440 1550 400 1700 300 S1950 180 2130 110"/>
+                </g>
+            </svg>
+            <div id="environment" aria-hidden="true"></div>
+            <div id="ambush-bush" aria-label="A large bush blocking the trail">
+                <span class="ambush-leaf ambush-leaf-left"></span>
+                <span class="ambush-leaf ambush-leaf-center"></span>
+                <span class="ambush-leaf ambush-leaf-right"></span>
+                <span class="ambush-berries"></span>
+                <span class="ambush-warning">BRANCHES AHEAD</span>
+            </div>
+            <div id="plant-garden" class="is-hidden" aria-label="A patch of poisonous plants">
+                <div class="plant-row plant-row-a">
+                    <span class="poison-plant" style="--tilt:-8deg">☠</span>
+                    <span class="poison-plant" style="--tilt:5deg">☠</span>
+                    <span class="poison-plant" style="--tilt:-4deg">☠</span>
+                </div>
+                <div class="plant-row plant-row-b">
+                    <span class="poison-plant" style="--tilt:8deg">☠</span>
+                    <span class="poison-plant" style="--tilt:-7deg">☠</span>
+                </div>
+                <div class="plant-warning">GOGGLES DETECTED · STAY CLEAR</div>
+            </div>
+            <div id="route-markers" class="route-markers is-hidden" aria-hidden="true">
+                <span class="route-marker route-left"></span>
+                <span class="route-marker route-center"></span>
+                <span class="route-marker route-right"></span>
+            </div>
+            <div id="safe-zone" class="world-object" aria-label="Forest safe area">
+                <span class="safe-glow"></span><span class="safe-icon">⛺</span>
+                <span class="object-caption">SAFE CAMP</span>
+            </div>
+            <div id="rescue-person" class="world-object is-hidden" aria-label="Rescue person">
+                <span class="rescue-pulse"></span><span class="rescue-icon">🧑‍🚒</span>
+                <span class="object-caption">RESCUE TEAM</span>
+            </div>
+            <div id="wildlife" class="wildlife is-hidden" aria-hidden="true"></div>
+            <div id="player" aria-label="Your character">
+                <canvas class="player-sprite" width="80" height="112" role="img" aria-label="Your forest explorer"></canvas>
+                <span id="player-goggles" class="player-goggles is-hidden" aria-label="Poison plant detection goggles"><i></i><i></i></span>
+                <span class="player-shadow"></span>
+            </div>
+        </div>
+
+        <header class="top-hud glass">
+            <div class="brand">
+                <span class="brand-mark" aria-hidden="true">✦</span>
+                <div><span class="brand-title">FOREST <b>RESCUE</b></span><span class="brand-subtitle">WILDERNESS ADVENTURE</span></div>
+            </div>
+            <div class="level-chip"><span class="level-emblem">01</span><span><small>ADVENTURE</small><b>LEVEL ONE</b></span></div>
+            <div class="timer-chip"><span class="timer-icon">◷</span><span><small>TIME IN FOREST</small><b id="timer">00:00</b></span></div>
+        </header>
+
+        <aside class="mission-panel glass">
+            <div class="panel-kicker"><span class="live-dot"></span> YOUR ADVENTURE</div>
+            <h1>Rescue<br>Mission</h1>
+            <p id="missionText">Navigate the forest safely and complete the rescue tasks.</p>
+            <div class="mission-divider"></div>
+            <div class="mission-step active" id="step-branches"><span class="step-number">01</span><span><b>Falling branches</b><small>Reach the safe camp</small></span><span class="step-status">●</span></div>
+            <div class="mission-step" id="step-path"><span class="step-number">02</span><span><b>Choose a trail</b><small>Find the rescue team</small></span><span class="step-status">○</span></div>
+            <div class="mission-step" id="step-plants"><span class="step-number">03</span><span><b>Poisonous plants</b><small>Detect & cross safely</small></span><span class="step-status">○</span></div>
+        </aside>
+
+        <aside class="minimap-panel glass">
+            <div class="mini-heading"><span>FIELD MAP</span><span class="map-north">N ↑</span></div>
+            <div id="minimap" class="minimap" aria-label="Forest mini map">
+                <span class="mini-river"></span><span class="mini-trail"></span>
+                <span class="mini-location mini-camp" title="Safe camp">⌂</span>
+                <span class="mini-route mini-route-left"></span><span class="mini-route mini-route-mid"></span><span class="mini-route mini-route-right"></span>
+                <span id="mini-rescue" class="mini-rescue is-hidden" title="Rescue team">✦</span>
+                <span id="mini-player" class="mini-player" title="Your position"></span>
+            </div>
+            <div class="map-footer"><span><i class="legend-you"></i> YOU</span><span id="map-task-label">● TASK 01</span></div>
+        </aside>
+
+        <aside class="legend-panel glass">
+            <div class="legend-heading">FIELD GUIDE <span>✧</span></div>
+            <div class="legend-item"><i class="legend-symbol explorer">●</i><span>Explorer</span></div>
+            <div class="legend-item"><i class="legend-symbol rescuer">✦</i><span>Rescue person</span></div>
+            <div class="legend-item"><i class="legend-symbol hazard">⌁</i><span>Falling branch</span></div>
+            <div class="legend-item"><i class="legend-symbol tree-symbol">♠</i><span>Forest tree</span></div>
+            <div class="legend-item"><i class="legend-symbol reward-symbol">★</i><span>Reward</span></div>
+            <div class="legend-item"><i class="legend-symbol animal-symbol">♧</i><span>Wild animal</span></div>
+        </aside>
+
+        <nav class="bottom-nav glass" aria-label="Adventure tools">
+            <button class="nav-button" data-panel="map" type="button"><span class="nav-icon">⌖</span><span>MAP</span></button>
+            <button class="nav-button" data-panel="inventory" type="button"><span class="nav-icon">▣</span><span>PACK</span></button>
+            <button class="nav-button" data-panel="compass" type="button"><span class="nav-icon">✥</span><span>COMPASS</span></button>
+            <button class="nav-button" data-panel="tasks" type="button"><span class="nav-icon">☷</span><span>TASKS</span></button>
+        </nav>
+
+        <div class="dpad" aria-label="Movement controls">
+            <button class="control-button control-up" data-direction="up" type="button" aria-label="Move up">▲</button>
+            <button class="control-button control-left" data-direction="left" type="button" aria-label="Move left">◀</button>
+            <button class="control-button control-down" data-direction="down" type="button" aria-label="Move down">▼</button>
+            <button class="control-button control-right" data-direction="right" type="button" aria-label="Move right">▶</button>
+        </div>
+        <button id="run-button" class="run-button" type="button" aria-pressed="false"><span>»</span><b>RUN</b></button>
+        <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+        <div id="panel-overlay" class="screen-overlay is-hidden" aria-hidden="true">
+            <section class="overlay-card tool-card glass" role="dialog" aria-modal="true" aria-labelledby="tool-title">
+                <button class="close-button" type="button" aria-label="Close panel">×</button>
+                <div class="panel-kicker">FIELD NOTES</div><h2 id="tool-title"></h2><div id="tool-content"></div>
+            </section>
+        </div>
+
+        <div id="danger-overlay" class="screen-overlay danger-overlay is-hidden" aria-hidden="true">
+            <section class="danger-card" role="dialog" aria-modal="true" aria-labelledby="danger-title">
+                <span class="danger-emblem" aria-hidden="true">!</span>
+                <div class="danger-kicker">TRAIL ALERT</div>
+                <h2 id="danger-title">That trail is unsafe</h2>
+                <p id="danger-message">A wild animal is ahead. Choose another trail to continue safely.</p>
+                <div class="danger-actions">
+                    <button id="retry-button" class="danger-retry" type="button">RETRY TASK</button>
+                    <button id="back-button" class="danger-back" type="button">GO BACK</button>
+                </div>
+            </section>
+        </div>
+
+        <div id="reward-overlay" class="screen-overlay reward-overlay is-hidden" aria-hidden="true">
+            <section class="reward-card" role="dialog" aria-modal="true" aria-labelledby="reward-title">
+                <div class="reward-burst" aria-hidden="true"><span>🥽</span></div>
+                <div class="reward-kicker">TASK 2 COMPLETE · REWARD UNLOCKED</div>
+                <h2 id="reward-title">Congratulations!</h2>
+                <p>You won the <strong>Poisonous Plant Detection Goggles</strong> by completing this task.</p>
+                <p class="reward-help">Wear them to spot the poisonous plants in your next task. Jump over the marked plants or move around them to cross safely.</p>
+                <button id="claim-goggles-button" class="reward-continue" type="button">WEAR GOGGLES & CONTINUE <span>→</span></button>
+            </section>
+        </div>
+
+        <div id="level-complete-overlay" class="screen-overlay reward-overlay is-hidden" aria-hidden="true">
+            <section class="reward-card level-complete-card" role="dialog" aria-modal="true" aria-labelledby="level-complete-title">
+                <div class="reward-burst complete-burst" aria-hidden="true"><span>✦</span></div>
+                <div class="reward-kicker">FOREST RESCUE · LEVEL 1</div>
+                <h2 id="level-complete-title">Level Complete!</h2>
+                <p>Congratulations! You safely crossed the poisonous plants and completed Level 1.</p>
+                <div class="completion-actions">
+                    <button id="level-two-button" class="reward-continue" type="button">MOVE TO LEVEL 2 <span>→</span></button>
+                    <button id="exit-game-button" class="danger-back" type="button">EXIT GAME</button>
+                </div>
+            </section>
+        </div>
+
+        <div id="level-two-overlay" class="screen-overlay reward-overlay is-hidden" aria-hidden="true">
+            <section class="reward-card level-complete-card" role="dialog" aria-modal="true" aria-labelledby="level-two-title">
+                <div class="reward-burst complete-burst" aria-hidden="true"><span>🌲</span></div>
+                <div class="reward-kicker">NEW ADVENTURE UNLOCKED</div>
+                <h2 id="level-two-title">Level 2 is next!</h2>
+                <p>You unlocked the next forest adventure. Level 2 is not part of this prototype yet—your Level 1 rescue is complete.</p>
+                <div class="completion-actions">
+                    <button id="level-two-menu-button" class="reward-continue" type="button">BACK TO MENU <span>→</span></button>
+                    <button id="level-two-exit-button" class="danger-back" type="button">EXIT GAME</button>
+                </div>
+            </section>
+        </div>
+
+        <div id="start-overlay" class="screen-overlay start-screen">
+            <section class="start-card glass" role="dialog" aria-modal="true" aria-labelledby="start-title">
+                <div class="start-art"><span class="sun-orb"></span><span class="art-pine pine-a">♠</span><span class="art-pine pine-b">♠</span><span class="art-pine pine-c">♠</span><span class="art-camp">⌂</span><span class="art-sparkle">✦</span><img class="start-hero" src="assets/player/player.png" alt="Forest explorer ready for adventure"></div>
+                <div class="start-content">
+                    <div class="panel-kicker"><span class="live-dot"></span> YOUR NEXT GREAT ADVENTURE</div>
+                    <h2 id="start-title">The forest<br><em>is calling.</em></h2>
+                    <p class="start-intro">Sprint past falling branches, then find the rescue team and bring everyone home.</p>
+                    <div class="customization">
+                        <div class="choice-group"><span class="choice-label">CHARACTER GENDER</span><div class="choice-row" id="gender-options"><button class="choice selected" type="button" data-gender="Woman">Woman</button><button class="choice" type="button" data-gender="Man">Man</button><button class="choice" type="button" data-gender="Non-binary">Non-binary</button></div></div>
+                        <div class="choice-group"><span class="choice-label">FIELD OUTFIT</span><div class="choice-row outfit-row" id="outfit-options"><button class="outfit-choice selected" type="button" data-outfit="trail" aria-label="Trail green outfit"><i class="outfit-swatch swatch-trail"></i>Trail</button><button class="outfit-choice" type="button" data-outfit="sunrise" aria-label="Sunrise orange outfit"><i class="outfit-swatch swatch-sunrise"></i>Sunrise</button><button class="outfit-choice" type="button" data-outfit="lake" aria-label="Lake blue outfit"><i class="outfit-swatch swatch-lake"></i>Lake</button></div></div>
+                    </div>
+                    <div class="menu-options"><span>◖♪ <b>Sound</b></span><button id="sound-toggle" class="toggle is-on" type="button" role="switch" aria-checked="true"><i></i><span>ON</span></button></div>
+                    <div class="reward-strip"><div><span class="reward-star">✦</span><span><b>Trailblazer badge</b><small>Unlock more rewards as you level up</small></span></div><span class="locked-reward" title="Unlock at Level 2">🔒 <small>LV 02</small></span><span class="locked-reward" title="Unlock at Level 3">🔒 <small>LV 03</small></span></div>
+                    <button id="start-button" class="start-button" type="button"><span>START ADVENTURE</span><b>→</b></button>
+                    <div class="control-hint">MOVE <b>W A S D</b> OR <b>↑ ↓ ← →</b><span>·</span> RUN <b>SHIFT</b></div>
+                </div>
+            </section>
+        </div>
+    </main>
+    <script src="game.js"></script>
+</body>
+</html>
